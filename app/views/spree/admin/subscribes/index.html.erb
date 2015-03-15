@@ -1,0 +1,67 @@
+<% content_for :page_title do %>
+  <%= Spree.t(:subscribes) %>
+<% end %>
+
+<% content_for :table_filter_title do %>
+  <%= Spree.t(:search) %>
+<% end %>
+
+<% content_for :table_filter do %>
+  <div data-hook="admin_products_index_search">
+    <%= search_form_for [:admin, @search] do |f| %>
+      <div class="row">
+        <div class="alpha six columns">
+          <div class="field">
+            <%= label_tag :q_email_cont, Spree::Subscribe.human_attribute_name(:user_email) %>
+            <%= f.text_field :user_email_cont, size: 25, class: 'form-control' %>
+          </div>
+        </div>
+
+        <div class="six columns">
+          <div class="field">
+            <%= label_tag :q_variant_cont, Spree::Subscribe.human_attribute_name(:variant_sku) %>
+            <%= f.text_field :variant_sku_cont, size: 25, class: 'form-control' %>
+          </div>
+        </div>
+      </div>
+      </div>
+      <div class="form-buttons actions filter-actions" data-hook="admin_subscribes_index_search_buttons">
+        <%= button Spree.t(:search), 'search' %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+<%= render :partial => 'spree/admin/shared/product_sub_menu' %>
+
+<%#= render 'spree/admin/shared/index_table_options', collection: @subscribes %>
+
+<% if @subscribes.any? %>
+  <table class="table" id="listing_subscribes">
+    <thead>
+      <tr>
+        <th><%= sort_link @search, :variant, Spree.t(:variant) %></th>
+        <th><%= sort_link @search, :user, Spree::Subscribe.human_attribute_name(:user) %></th>
+        <th><%= sort_link @search, :created_at, Spree::Subscribe.human_attribute_name(:created_at) %></th>
+        <th data-hook="admin_subscribes_index_header_actions" class="actions"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @subscribes.each do |subscribe| %>
+        <tr data-hook="admin_subscribes_index_rows" id="<%= dom_id subscribe %>" class="<%= cycle('odd', 'even') %>">
+          <td><%= link_to_if subscribe.variant, @variants[subscribe.variant_id].sku, @variants[subscribe.variant_id].is_master? ? product_path(@variants[subscribe.variant_id].product): admin_product_variants_path(@variants[subscribe.variant_id].product) %></td>
+          <td><%= subscribe.user_id ? link_to(subscribe.user.try(:email), [:admin, subscribe.user]) : Spree.t(:anonymous) %></td>
+          <td><%= l subscribe.created_at, format: :short %></td>
+          <td data-hook="admin_subscribes_index_row_actions" class="actions">
+            <%= link_to_delete subscribe, no_text: true, url: admin_subscribe_url(subscribe) %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="alert alert-info no-objects-found">
+    <%#= Spree.t(:no_resource_found, resource: I18n.t(:other, scope: 'activerecord.models.spree/subscribe')) %>
+  </div>
+<% end %>
+
+<%#= render 'spree/admin/shared/index_table_options', collection: @subscribes %>
